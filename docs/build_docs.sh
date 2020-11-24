@@ -25,7 +25,6 @@ pip install --no-cache-dir \
 #################### DECLARE VARIABLES ########################################
 
 # list which branches and tags will be build
-#
 # TODO: when the release process is settled this will need to be automated
 DOCSVERSIONS="dev v0.1.0 v0.1.1"
 # TODO: this variable is defined in docs/Makefile as well
@@ -74,10 +73,9 @@ for current_version in ${DOCSVERSIONS}; do
 
    # copy the static assets produced by the above build into our docroot
    rsync -av "docs/${BUILDDIR}/html/" "${docroot}/"
-
 done
 
-# return to dev branch
+# questionable step to be honest...
 git checkout dev
 
 #################### Update GitHub Pages ######################################
@@ -114,14 +112,14 @@ EOF
 cat > README.md <<EOF
 # GitHub Pages Cache
 
-Nothing to see here. The contents of this branch are essentially a cache that's not intended to be viewed on github.com.
+You are on the automatically generated branch with public documentation.
 
+If you're looking to update our documentation, check the relevant development
+branches.
 
-If you're looking to update our documentation, check the relevant development branch's 'docs/' dir.
-
-For more information on how this documentation is built using Sphinx, Read the Docs, and GitHub Actions/Pages, see:
-
-* https://tech.michaelaltfield.net/2020/07/18/sphinx-rtd-github-pages-1
+For more information on how this documentation is built using Sphinx,
+Read the Docs, and GitHub Actions/Pages, see:
+https://tech.michaelaltfield.net/2020/07/18/sphinx-rtd-github-pages-1
 EOF
 
 # copy the resulting html pages built from sphinx above to our new git repo
@@ -134,7 +132,8 @@ git commit -am "${msg}"
 # overwrite the contents of the gh-pages branch on our github.com repo
 git push deploy gh-pages --force
 
-popd # return to main repo sandbox root
+# return to main repo sandbox root
+popd
 
 # exit cleanly
 exit 0
