@@ -26,16 +26,23 @@ import sys
 from git import Repo
 
 
+# add sourcecode to path
+sys.path.insert(0, os.path.abspath('../src'))
+
 project = 'helloWorld'
-copyright = '2020, Anton Buyskikh'
 author = 'Anton Buyskikh'
+github_user = 'anton-buyskikh'
+copyright = '2020, ' + author
+
 
 
 if 'current_version' in os.environ:
     # get the current_version env var set by build_docs.sh
     current_version = os.environ['current_version']
 else:
-    raise ValueError('Define current_version in environment')
+    # Default for local build of Jenkins CI
+    current_version = 'dev'
+    
 
 version = current_version
 release = current_version
@@ -117,7 +124,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'helloWorlddoc'
+htmlhelp_basename = project + 'doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -144,8 +151,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'helloWorld.tex', 'helloWorld Documentation',
-     'Anton Buyskikh', 'manual'),
+    (master_doc, project + '.tex', project + ' Documentation',
+     author, 'manual'),
 ]
 
 
@@ -154,7 +161,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'helloworld', 'helloWorld Documentation',
+    (master_doc, project, project + ' Documentation',
      [author], 1)
 ]
 
@@ -165,8 +172,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'helloWorld', 'helloWorld Documentation',
-     author, 'helloWorld', 'One line description of project.',
+    (master_doc, project, project + ' Documentation',
+     author, project, 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -191,8 +198,6 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
-# add sourcecode to path
-sys.path.insert(0, os.path.abspath('../src'))
 
 ############################
 # SETUP THE RTD LOWER-LEFT #
@@ -206,8 +211,8 @@ html_context['display_lower_left'] = True
 if 'REPO_NAME' in os.environ:
     REPO_NAME = os.environ['REPO_NAME']
 else:
-    raise ValueError('Define REPO_NAME in environment')
-
+    # Default for local build of Jenkins CI
+    REPO_NAME = ''
 
 # tell the theme which language to we're currently building
 html_context['current_language'] = language
@@ -225,8 +230,8 @@ html_context['versions'] = list()
 
 versions = [branch.name for branch in repo.branches + repo.tags]
 for version in versions:
-    html_context['versions'].append(
-        (version, '/' + REPO_NAME + '/' + version + '/'))
+    html_context['versions'].append((version,
+                                     '/' + REPO_NAME + '/' + version + '/'))
 
 # POPULATE LINKS TO OTHER FORMATS/DOWNLOADS
 
@@ -244,18 +249,28 @@ epub_basename = 'target'
 
 html_context['downloads'] = list()
 html_context['downloads'].append(
-    ('pdf', '/' + REPO_NAME + '/' + current_version + '/' + project + '-docs_' + current_version + '.pdf'))
+    (
+        'pdf',
+        '/' + REPO_NAME + '/' + current_version + '/' +
+        project + '-docs_' + current_version + '.pdf'
+    )
+)
 
 html_context['downloads'].append(
-    ('epub', '/' + REPO_NAME + '/' + current_version + '/' + project + '-docs_' + current_version + '.epub'))
+    (
+        'epub',
+        '/' + REPO_NAME + '/' + current_version + '/' +
+        project + '-docs_' + current_version + '.epub'
+    )
+)
 
 ##########################
 # "EDIT ON GITHUB" LINKS #
 ##########################
 
 html_context['display_github'] = True
-html_context['github_user'] = 'anton-buyskikh'
-html_context['github_repo'] = 'repoName'
+html_context['github_user'] = github_user
+html_context['github_repo'] = REPO_NAME
 html_context['github_version'] = 'dev/docs/'
 
 # logging
