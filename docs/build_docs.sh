@@ -63,12 +63,12 @@ for current_version in ${versions}; do
    # PDF #
    sphinx-build -b rinoh docs/ docs/_build/rinoh
    mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/${GITHUB_REPOSITORY}-docs_${current_version}.pdf"
+   cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.pdf"
 
    # EPUB #
    sphinx-build -b epub docs/ docs/_build/epub
    mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/${GITHUB_REPOSITORY}-docs_${current_version}.epub"
+   cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.epub"
 
    # copy the static assets produced by the above build into our docroot
    rsync -av "docs/_build/html/" "${docroot}/"
@@ -99,7 +99,7 @@ cat > index.html <<EOF
 <!DOCTYPE html>
 <html>
    <head>
-      <title>${GITHUB_REPOSITORY} docs</title>
+      <title>${REPO_NAME} docs</title>
       <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/dev/'" />
    </head>
    <body>
