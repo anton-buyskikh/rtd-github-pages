@@ -27,8 +27,9 @@ pip install --no-cache-dir \
 # list which branches and tags will be build
 #
 # TODO: when the release process is settled this will need to be automated
-versions="dev v0.1.0 v0.1.1"
-repo_name="helloWorld"
+DOCSVERSIONS="dev v0.1.0 v0.1.1"
+# TODO: this variable is defined in docs/Makefile as well
+BUILDDIR="_build"
 
 pwd
 ls -lah
@@ -44,34 +45,35 @@ export REPO_NAME="${GITHUB_REPOSITORY##*/}"
 # cleanup any old builds
 make -C docs clean
 
-for current_version in ${versions}; do
+for current_version in ${DOCSVERSIONS}; do
    # for conf.py
    export current_version
    git checkout ${current_version}
 
    echo "INFO: Building for ${current_version}"
 
-   # skip this branch if it doesn't have our docs dir & sphinx config
    if [ ! -e 'docs/conf.py' ]; then
       echo "ERROR: Cannot find 'docs/conf.py'"
       exit 1
    fi
 
-   # HTML #
-   sphinx-build -b html docs/ docs/_build/html/${current_version}
+   # TODO: The following targets should use the same commands as Jenkins CI
 
-   # PDF #
-   sphinx-build -b rinoh docs/ docs/_build/rinoh
-   mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.pdf"
+   # HTML
+   sphinx-build -b html docs/ docs/${BUILDDIR}/html/${current_version}
 
-   # EPUB #
-   sphinx-build -b epub docs/ docs/_build/epub
+   # PDF
+   sphinx-build -b rinoh docs/ docs/${BUILDDIR}/rinoh
    mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.epub"
+   cp "docs/${BUILDDIR}/rinoh/target.pdf" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.pdf"
+
+   # EPUB
+   sphinx-build -b epub docs/ docs/${BUILDDIR}/epub
+   mkdir -p "${docroot}/${current_version}"
+   cp "docs/${BUILDDIR}/epub/target.epub" "${docroot}/${current_version}/${REPO_NAME}-docs_${current_version}.epub"
 
    # copy the static assets produced by the above build into our docroot
-   rsync -av "docs/_build/html/" "${docroot}/"
+   rsync -av "docs/${BUILDDIR}/html/" "${docroot}/"
 
 done
 
