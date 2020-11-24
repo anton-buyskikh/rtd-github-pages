@@ -14,7 +14,6 @@ jobs:
     container: ubuntu:20.04
 
     steps:
-
       - name: Clone the repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

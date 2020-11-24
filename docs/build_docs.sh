@@ -1,9 +1,10 @@
 #!/bin/bash
 set -x
 
+# hotfix for noisy ubuntu container
 export DEBIAN_FRONTEND=noninteractive
 
-#################### INSTALL DEPENDS ##########################################
+#################### INSTALLS #################################################
 
 apt-get update
 apt-get -y install rsync python3 python3-git python3-pip -y
@@ -23,6 +24,12 @@ pip install --no-cache-dir \
 
 #################### DECLARE VARIABLES ########################################
 
+# list which branches and tags will be build
+#
+# TODO: when the release process is settled this will need to be automated
+versions="dev v0.1.0 v0.1.1"
+repo_name="helloWorld"
+
 pwd
 ls -lah
 export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
@@ -34,26 +41,21 @@ export REPO_NAME="${GITHUB_REPOSITORY##*/}"
 
 #################### BUILD DOCS ###############################################
 
-# first, cleanup any old builds' static assets
+# cleanup any old builds
 make -C docs clean
 
-# get a list of branches and tags, excluding 'HEAD' and 'gh-pages'
-versions="dev v0.1.0 v0.1.1"
 for current_version in ${versions}; do
-
-   # make the current version available to conf.py
+   # for conf.py
    export current_version
    git checkout ${current_version}
 
-   echo "INFO: Building sites for ${current_version}"
+   echo "INFO: Building for ${current_version}"
 
    # skip this branch if it doesn't have our docs dir & sphinx config
    if [ ! -e 'docs/conf.py' ]; then
-      echo -e "\tINFO: Couldn't find 'docs/conf.py' (skipped)"
-      continue
+      echo "ERROR: Cannot find 'docs/conf.py'"
+      exit 1
    fi
-
-   echo "INFO: Building"
 
    # HTML #
    sphinx-build -b html docs/ docs/_build/html/${current_version}
@@ -61,12 +63,12 @@ for current_version in ${versions}; do
    # PDF #
    sphinx-build -b rinoh docs/ docs/_build/rinoh
    mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/helloWorld-docs_${current_version}.pdf"
+   cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/${GITHUB_REPOSITORY}-docs_${current_version}.pdf"
 
    # EPUB #
    sphinx-build -b epub docs/ docs/_build/epub
    mkdir -p "${docroot}/${current_version}"
-   cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/helloWorld-docs_${current_version}.epub"
+   cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/${GITHUB_REPOSITORY}-docs_${current_version}.epub"
 
    # copy the static assets produced by the above build into our docroot
    rsync -av "docs/_build/html/" "${docroot}/"
@@ -97,7 +99,7 @@ cat > index.html <<EOF
 <!DOCTYPE html>
 <html>
    <head>
-      <title>helloWorld Docs</title>
+      <title>${GITHUB_REPOSITORY} docs</title>
       <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/dev/'" />
    </head>
    <body>
