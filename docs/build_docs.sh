@@ -26,7 +26,7 @@ pip install --no-cache-dir \
 
 # list which branches and tags will be build
 # TODO: when the release process is settled this will need to be automated
-DOCSVERSIONS="dev v0.1.1 v0.2.0"
+DOCSVERSIONS="dev"
 # TODO: this variable is defined in docs/Makefile as well
 BUILDDIR="_build"
 
